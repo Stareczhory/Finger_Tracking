@@ -16,16 +16,22 @@ cords_angles = []
 
 def calculate_angle(cords: HandLandmarkerResult):
     hand_landmarker_result = cords
+    coordinate_values = []
     for landmarks in hand_landmarker_result.hand_landmarks:
         for idx, landmark in enumerate(landmarks):
-            if idx == 0:
-                origin_z = landmark.z
-                origin_y = landmark.y
-            if idx in cords_num_array:
-                z_coordinate = landmark.z - origin_z
-                y_coordinate = landmark.y - origin_y
-                cords_angles.append((math.atan(z_coordinate/y_coordinate)) * 180 / math.pi)
-
+            coordinate_values.append(landmark)
+    if len(coordinate_values) != 0:
+        num_counter = 0
+        for _ in cords_num_array:
+            # length from origin (landmark 0) to midpoint
+            length_c = math.sqrt((coordinate_values[8+num_counter].z - coordinate_values[0].z)**2 + (coordinate_values[5+num_counter].y - coordinate_values[0].y)**2)
+            # length from midpoint to endpoint
+            length_b = math.sqrt((coordinate_values[5+num_counter].z - coordinate_values[8+num_counter].z)**2 + (coordinate_values[5+num_counter].y - coordinate_values[8+num_counter].y)**2)
+            # length from endpoint to origin
+            length_d = math.sqrt((coordinate_values[8+num_counter].z - coordinate_values[0].z)**2 + (coordinate_values[8+num_counter].y - coordinate_values[0].y)**2)
+            angle_cb = math.acos((length_d**2 - length_b**2 - length_c**2)/-(2*length_c*length_b))
+            cords_angles.append(round(math.degrees(angle_cb), 2))
+            num_counter += 4
 # Create a hand landmarker instance with the live stream mode:
 def print_result(result: HandLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
     global current_frame, coordinates
