@@ -6,7 +6,6 @@ import handle_image
 import time
 import math
 from collections import deque
-import datetime
 import copy
 import csv
 
@@ -14,15 +13,18 @@ buffer_size = 500
 full_data_stream = deque(maxlen=buffer_size)
 filename = 'tracking_data.csv'
 
-
+# used in detector variable
 VisionRunningMode = mp.tasks.vision.RunningMode
 HandLandmarkerResult = mp.tasks.vision.HandLandmarkerResult
 
 current_frame = None
 coordinates = None
+# cords_num_array contains the numbers that represent the hand landmarks
 cords_num_array = [8, 12, 16, 20]
+# contains the angles in order starting from the index finger
 cords_angles = []
 
+# save data to a csv file, 'w' for overwrite 'a' to append
 def save_data_to_csv(data_deque, file):
     with open(filename, 'w', newline='') as csvfile:
         csv_write = csv.writer(csvfile)
@@ -30,6 +32,7 @@ def save_data_to_csv(data_deque, file):
             csv_write.writerow(row)
         data_deque.clear()
 
+# calculates the angles in degrees from the y, z coordinates of specified landmarks
 def calculate_angle(cords: HandLandmarkerResult):
     hand_landmarker_result = cords
     coordinate_values = []
@@ -98,5 +101,6 @@ except KeyboardInterrupt:
     print("Data stream interrupted by user. Saving remaining data...")
     if full_data_stream:
         save_data_to_csv(full_data_stream, filename)
+
 cap.release()
 cv.destroyAllWindows()
